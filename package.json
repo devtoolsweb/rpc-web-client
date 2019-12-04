@@ -1,0 +1,30 @@
+{
+  "author": "<aperos.dev@gmail.com>",
+  "dependencies": {
+    "@aperos/rpc-common": "*"
+  },
+  "description": "TypeScript implementation of a RPC web client based on WebSockets",
+  "devDependencies": {
+    "make-dts-bundle": "latest",
+    "dts-bundle": "latest",
+    "parcel": "latest",
+    "rollup": "latest",
+    "rollup-plugin-terser": "latest",
+    "rollup-plugin-typescript2": "latest",
+    "ts-node": "latest",
+    "typescript": "latest"
+  },
+  "license": "MIT",
+  "name": "@aperos/rpc-client",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "rollup -c && npm run build-dts",
+    "build-dts": "make-dts-bundle -b build",
+    "build-production": "BUILD=production npm run build",
+    "clean": "rm -rf build dist",
+    "prepare": "npm run clean && npm run build-production",
+    "test-client": "parcel serve examples/test_client/index.html"
+  },
+  "types": "dist/index.d.ts",
+  "version": "0.0.1"
+}
