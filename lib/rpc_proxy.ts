@@ -28,6 +28,7 @@ export function RpcCall (p?: string | IRpcCallParams) {
     if (!t) {
       throw new Error(`Class '${namespace}' is not inherited from RpcProxy`)
     }
+    const oldValue = descriptor.value
     descriptor.value = async function (this: IRpcProxy, args: RpcMessageArgs) {
       let verb: string = key
       let ttl = this.client.messageTtl
@@ -58,7 +59,8 @@ export function RpcCall (p?: string | IRpcCallParams) {
           status: 'Timeout'
         })
       }
-      return await this.client.send(sp)
+      const result = await this.client.send(sp)
+      return await oldValue(null, result)
     }
   }
 }

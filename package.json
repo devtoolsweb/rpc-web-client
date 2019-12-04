@@ -22,7 +22,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup -c && npm run build-dts",
-    "build-dts": "make-dts-bundle -b build",
+    "build-dts": "make-dts-bundle",
     "build-production": "BUILD=production npm run build",
     "clean": "rm -rf .cache build dist",
     "prepare": "npm run clean && npm run build-production",

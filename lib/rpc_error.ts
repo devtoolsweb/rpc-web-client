@@ -1,7 +1,7 @@
-export class RpcMethodNotImplementedError extends Error {
+export class RpcProxyMethodError extends Error {
   constructor () {
     super(
-      'The Rpc method is not implemented, you may need to add a @RpcCall() decorator.'
+      'RPC method call error, you may need to add the @RpcCall () decorator'
     )
   }
 }
