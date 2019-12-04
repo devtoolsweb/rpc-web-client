@@ -1,5 +1,8 @@
 {
   "author": "<aperos.dev@gmail.com>",
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
   "dependencies": {
     "@aperos/rpc-common": "*"
   },
@@ -21,7 +24,7 @@
     "build": "rollup -c && npm run build-dts",
     "build-dts": "make-dts-bundle -b build",
     "build-production": "BUILD=production npm run build",
-    "clean": "rm -rf build dist",
+    "clean": "rm -rf .cache build dist",
     "prepare": "npm run clean && npm run build-production",
     "test-client": "parcel serve examples/test_client/index.html"
   },
