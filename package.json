@@ -18,7 +18,7 @@
     "typescript": "latest"
   },
   "license": "MIT",
-  "name": "@aperos/rpc-client",
+  "name": "@aperos/rpc-web-client",
   "main": "dist/index.js",
   "scripts": {
     "build": "rollup -c && npm run build-dts",
