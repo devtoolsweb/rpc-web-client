@@ -24,6 +24,9 @@ export class RpcClient implements IRpcClient {
 
   constructor (p: IRpcClientParams) {
     this.connection = new SocketConnection({ serverUrl: p.serverUrl })
+    this.connection.on('open', () => {
+      console.log('>>>>> WebSocket connection updated')
+    })
     this.messageTtl = p.messageTtl || -1
   }
 

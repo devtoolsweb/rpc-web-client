@@ -1,3 +1,4 @@
+import { EventEmitterMixin, IEventsBase } from '@aperos/event-emitter'
 import { ISocketMessage } from '@aperos/rpc-common'
 
 export type SocketMessageCallback = (message?: ISocketMessage) => any
@@ -28,7 +29,15 @@ class MessageSink {
   }
 }
 
-export class SocketConnection implements ISocketConnection {
+export interface ISocketConnectionEvents extends IEventsBase {
+  open: () => void
+}
+
+export class BaseSocketConnection {}
+
+export class SocketConnection
+  extends EventEmitterMixin<ISocketConnectionEvents>(BaseSocketConnection)
+  implements ISocketConnection {
   readonly serverUrl: string
 
   private isConnected = false
@@ -37,6 +46,7 @@ export class SocketConnection implements ISocketConnection {
   private readonly sinkMap = new Map<number, MessageSink>()
 
   constructor (p: ISocketConnectionParams) {
+    super()
     this.serverUrl = p.serverUrl
   }
 
@@ -66,7 +76,7 @@ export class SocketConnection implements ISocketConnection {
     }
   }
 
-  protected async reconnect() {
+  protected async reconnect () {
     return new Promise((resolve, reject) => {
       let ws: WebSocket
       try {
@@ -89,7 +99,7 @@ export class SocketConnection implements ISocketConnection {
           this.isConnected = true
           this.ws = ws
           resolve()
-          console.log('WebSocket connection updated')
+          this.emit('open')
         })
       } catch (e) {
         reject(e.message)
