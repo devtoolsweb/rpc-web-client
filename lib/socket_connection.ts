@@ -1,12 +1,10 @@
-import { EventEmitterMixin, IEventsBase } from '@aperos/event-emitter'
+import { EventEmitterMixin, IBaseEvents } from '@aperos/event-emitter'
 import { ISocketMessage } from '@aperos/rpc-common'
 
 export type SocketMessageCallback = (message?: ISocketMessage) => any
 
 export interface ISocketMessageSendParams {
   message: ISocketMessage
-  onResponse?: SocketMessageCallback
-  onTimeout?: SocketMessageCallback
 }
 
 export interface ISocketConnection {
@@ -29,8 +27,10 @@ class MessageSink {
   }
 }
 
-export interface ISocketConnectionEvents extends IEventsBase {
-  open: () => void
+export interface ISocketConnectionEvents extends IBaseEvents {
+  readonly open: (conn: ISocketConnection) => void
+  readonly response: (conn: ISocketConnection, m: ISocketMessage) => void
+  readonly timeout: (conn: ISocketConnection, m: ISocketMessage) => void
 }
 
 export class BaseSocketConnection {}
@@ -54,15 +54,14 @@ export class SocketConnection
     await this.ensureConnectionExists()
     return new Promise(resolve => {
       const t = setTimeout(() => {
-        resolve(p.onTimeout ? p.onTimeout() : undefined)
+        this.emit('timeout', this, p.message)
+        resolve()
       }, p.message.ttl)
       this.sinkMap.set(
         p.message.id,
         new MessageSink(response => {
           clearTimeout(t)
-          if (p.onResponse) {
-            p.onResponse(response)
-          }
+          this.emit('response', this, response!)
           resolve(response)
         })
       )
@@ -99,7 +98,7 @@ export class SocketConnection
           this.isConnected = true
           this.ws = ws
           resolve()
-          this.emit('open')
+          this.emit('open', this)
         })
       } catch (e) {
         reject(e.message)

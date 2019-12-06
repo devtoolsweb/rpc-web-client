@@ -1,78 +1,58 @@
-// TODO: Make client the event emitter and use events instead of on*() handlers.
-
-import {
-  IRpcResult,
-  ISocketMessage,
-  RpcMessage,
-  RpcMessageArgs,
-  RpcResult
-} from '@aperos/rpc-common'
+import { IRpcMessageArgs, RpcMessage } from '@aperos/rpc-common'
 import { IRpcClient, IRpcMessageSendParams } from './rpc_client'
 
 export interface IRpcProxy {
   readonly client: IRpcClient
+  readonly domain: string
 }
 
 export interface IRpcCallParams {
-  alias?: string
+  domain?: string
   messageTtl?: number
-}
-
-export function RpcCall (p?: string | IRpcCallParams) {
-  return (target: Object, key: string, descriptor: PropertyDescriptor) => {
-    let t = target
-    while (t && t.constructor.name !== RpcProxy.name) {
-      t = Object.getPrototypeOf(t)
-    }
-    const namespace = target.constructor.name
-    if (!t) {
-      throw new Error(`Class '${namespace}' is not inherited from RpcProxy`)
-    }
-    const oldValue = descriptor.value
-    descriptor.value = async function (this: IRpcProxy, args: RpcMessageArgs) {
-      let verb: string = key
-      let ttl = this.client.messageTtl
-      if (p) {
-        // For backward compatibility
-        if (typeof p === 'string') {
-          verb = p || key
-        } else {
-          verb = p.alias || key
-          p.messageTtl && (ttl = Math.max(100, p.messageTtl))
-        }
-      }
-      const ttlParams = ttl > 0 ? { ttl } : {}
-      const message = new RpcMessage({ args, namespace, verb, ...ttlParams })
-      const sp: IRpcMessageSendParams = { message }
-      if (args.onResponse) {
-        sp.onResponse = (m?: ISocketMessage) => {
-          args.onResponse!({ result: m as IRpcResult, verb })
-        }
-      }
-      sp.onTimeout = () => {
-        if (args.onTimeout) {
-          args.onTimeout({ verb })
-        }
-        return new RpcResult({
-          comment: `RPC request timeout: ${namespace}.${verb}()`,
-          id: message.id,
-          status: 'Timeout'
-        })
-      }
-      const result = await this.client.send(sp)
-      return await oldValue(null, result)
-    }
-  }
+  verb?: string
 }
 
 export interface IRpcProxyParams {
+  domain?: string
   client: IRpcClient
 }
 
 export class RpcProxy implements IRpcProxy {
   readonly client: IRpcClient
+  readonly domain: string
 
   constructor (p: IRpcProxyParams) {
     this.client = p.client
+    this.domain = p.domain || ''
+  }
+}
+
+export function RpcCall (p?: string | IRpcCallParams) {
+  return (target: Object, key: string, descriptor: PropertyDescriptor) => {
+    if (!(target instanceof RpcProxy)) {
+      throw new Error(
+        `Target class for @RpcCall() must be and instance of RpcProxy`
+      )
+    }
+    const oldValue = descriptor.value
+    descriptor.value = async function (this: IRpcProxy, args: IRpcMessageArgs) {
+      let domain = this.domain
+      let verb: string = key
+      let ttl = this.client.messageTtl
+      if (p) {
+        if (typeof p === 'string') {
+          verb = p || key
+        } else {
+          p.domain && (domain = p.domain)
+          verb = p.verb || key
+          p.messageTtl && (ttl = Math.max(100, p.messageTtl))
+        }
+      }
+      const ttlParams = ttl > 0 ? { ttl } : {}
+      const message = new RpcMessage({ args, domain, verb, ...ttlParams })
+      const sp: IRpcMessageSendParams = { message }
+      const result = await this.client.send(sp)
+      return await oldValue(null, result)
+    }
   }
 }
