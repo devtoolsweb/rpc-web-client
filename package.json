@@ -4,6 +4,7 @@
     "last 2 Chrome versions"
   ],
   "dependencies": {
+    "@aperos/event-emitter": "*",
     "@aperos/rpc-common": "*"
   },
   "description": "TypeScript implementation of a RPC web client based on WebSockets",
