@@ -14,7 +14,10 @@ export class TestClass extends RpcProxy {
     if (result) {
       return new RpcStandardResult<string>({
         ...result,
-        value: `Decorated value: {${result.value}}`
+        value:
+          result.status === 'success'
+            ? `Decorated value: {${result.value}}`
+            : result.comment!
       })
     }
     throw new RpcProxyMethodError()

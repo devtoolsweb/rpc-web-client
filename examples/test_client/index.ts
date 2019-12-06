@@ -8,6 +8,9 @@ window.addEventListener('load', async () => {
   })
 
   const tc = new TestClass({ client, domain: 'TestDomain' })
-  const result = await tc.testMethod({ hello: 123 })
-  console.log(result.value)
+
+  setInterval(async () => {
+    const result = await tc.testMethod({ hello: 'hello' })
+    console.log(result.value)
+  }, 2000)
 })
