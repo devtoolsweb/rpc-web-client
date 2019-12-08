@@ -1,4 +1,8 @@
-import { IRpcMessageArgs, RpcMessage } from '@aperos/rpc-common'
+import {
+  IRpcMessageArgs,
+  IRpcMessageParams,
+  RpcMessage
+} from '@aperos/rpc-common'
 import { IRpcClient, IRpcMessageSendParams } from './rpc_client'
 
 export interface IRpcProxy {
@@ -27,7 +31,28 @@ export class RpcProxy implements IRpcProxy {
   }
 }
 
+const rpcMethodQNSeparators = ['@', '::', '\\/', '\\\\', '\\.']
+const rpcMethodQNRegexp = new RegExp(
+  `^([a-z_]\\w*)(?:(?:${rpcMethodQNSeparators.join('|')})([a-z_]\\w+))?$`,
+  'i'
+)
+const rpcMethodQNForm = `[domain<${rpcMethodQNSeparators.join('|')}>]verb'`
+
 export function RpcCall (p?: string | IRpcCallParams) {
+  let qn = ['', '']
+  if (typeof p === 'string') {
+    const m = p.match(rpcMethodQNRegexp)
+    if (!m) {
+      throw new Error(
+        `Argument of @RpcCall() must be in form the of ${rpcMethodQNForm}`
+      )
+    }
+    qn = m.slice(1).map(x => x || '')
+  } else if (p) {
+    qn = [p.domain || '', p.verb || '']
+  }
+  const [defaultDomain, defaultVerb] = qn
+
   return (target: Object, key: string, descriptor: PropertyDescriptor) => {
     if (!(target instanceof RpcProxy)) {
       throw new Error(
@@ -36,20 +61,16 @@ export function RpcCall (p?: string | IRpcCallParams) {
     }
     const oldValue = descriptor.value
     descriptor.value = async function (this: IRpcProxy, args: IRpcMessageArgs) {
-      let domain = this.domain
-      let verb: string = key
       let ttl = this.client.messageTtl
-      if (p) {
-        if (typeof p === 'string') {
-          verb = p || key
-        } else {
-          p.domain && (domain = p.domain)
-          verb = p.verb || key
-          p.messageTtl && (ttl = Math.max(100, p.messageTtl))
-        }
+      const domain = this.domain || defaultDomain
+      const verb = defaultVerb || key
+      const params: IRpcMessageParams = {
+        ...(ttl > 0 ? { ttl } : {}),
+        args,
+        domain,
+        verb
       }
-      const ttlParams = ttl > 0 ? { ttl } : {}
-      const message = new RpcMessage({ args, domain, verb, ...ttlParams })
+      const message = new RpcMessage(params)
       const sp: IRpcMessageSendParams = { message }
       const result = await this.client.send(sp)
       return await oldValue(null, result)
