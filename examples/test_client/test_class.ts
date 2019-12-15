@@ -1,24 +1,11 @@
-import {
-  IRpcMessageArgs,
-  IRpcStandardResult,
-  RpcStandardResult
-} from '@aperos/rpc-common'
-import { RpcCall, RpcProxy, RpcProxyMethodError } from '../../lib'
+import {} from '@aperos/rpc-common'
+import { RpcCall, RpcProxy, RpcProxyMethodError, RpcCallArgs } from '../../lib'
 
 export class TestClass extends RpcProxy {
   @RpcCall()
-  async testMethod (
-    _args?: IRpcMessageArgs,
-    result?: IRpcStandardResult<string>
-  ): Promise<IRpcStandardResult<string>> {
+  async testMethod (_args?: RpcCallArgs, result?: string): Promise<string> {
     if (result) {
-      return new RpcStandardResult<string>({
-        ...result,
-        value:
-          result.status === 'success'
-            ? `Decorated value: {${result.value}}`
-            : result.comment!
-      })
+      return `Decorated value: {${result}}`
     }
     throw new RpcProxyMethodError()
   }

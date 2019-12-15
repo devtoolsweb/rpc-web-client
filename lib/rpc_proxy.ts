@@ -1,10 +1,14 @@
-import { RpcRequest } from '@aperos/rpc-common'
+import { RpcRequest, RpcUtils } from '@aperos/rpc-common'
 import { IRpcConnection } from './rpc_connection'
+import { RpcProxyMethodError } from './rpc_proxy_method_error'
 
 export interface IRpcProxy {
+  readonly apiKey?: string
   readonly connection: IRpcConnection
   readonly domain: string
 }
+
+export type RpcCallArgs = Record<string | symbol, any>
 
 export interface IRpcCallProps {
   domain?: string
@@ -13,41 +17,30 @@ export interface IRpcCallProps {
 }
 
 export interface IRpcProxyProps {
-  connnection: IRpcConnection
+  apiKey?: string
+  connection: IRpcConnection
   domain?: string
 }
 
 export class RpcProxy implements IRpcProxy {
+  readonly apiKey?: string
   readonly connection: IRpcConnection
   readonly domain: string
 
   constructor (p: IRpcProxyProps) {
-    this.connection = p.connnection
+    this.connection = p.connection
     this.domain = p.domain || ''
+    p.apiKey && (this.apiKey = p.apiKey)
   }
 }
 
-const rpcMethodQNSeparators = ['@', '::', '\\/', '\\\\', '\\.']
-const rpcMethodQNRegexp = new RegExp(
-  `^([a-z_]\\w*)(?:(?:${rpcMethodQNSeparators.join('|')})([a-z_]\\w+))?$`,
-  'i'
-)
-const rpcMethodQNForm = `[domain<${rpcMethodQNSeparators.join('|')}>]verb'`
-
 export function RpcCall (p?: string | IRpcCallProps) {
-  let qn = ['', '']
+  let [domain, verb, ttl] = ['', '', 0]
   if (typeof p === 'string') {
-    const m = p.match(rpcMethodQNRegexp)
-    if (!m) {
-      throw new Error(
-        `Argument of @RpcCall() must be in form the of ${rpcMethodQNForm}`
-      )
-    }
-    qn = m.slice(1).map(x => x || '')
+    ;[domain, verb] = RpcUtils.parseMethod(p)
   } else if (p) {
-    qn = [p.domain || '', p.verb || '']
+    ;[domain, verb, ttl] = [p.domain || '', p.verb || '', p.messageTtl || 0]
   }
-  const [defaultDomain, defaultVerb] = qn
 
   return (target: Object, key: string, descriptor: PropertyDescriptor) => {
     if (!(target instanceof RpcProxy)) {
@@ -56,22 +49,26 @@ export function RpcCall (p?: string | IRpcCallProps) {
       )
     }
     const oldValue = descriptor.value
-    descriptor.value = async function (this: IRpcProxy, args: any[]) {
-      let ttl = this.connection.messageTtl
-      const domain = this.domain || defaultDomain
-      const verb = defaultVerb || key
+    descriptor.value = async function (this: IRpcProxy, args: RpcCallArgs) {
+      const apiKey = this.apiKey
+      ttl = ttl || this.connection.messageTtl
       const request = new RpcRequest({
         ...(ttl > 0 ? { ttl } : {}),
         id: 'auto',
-        method: `${domain}.${verb}`,
+        method: `${this.domain || domain}.${verb || key}`,
         params: {
-          args,
-          domain,
-          verb
+          ...(apiKey ? { apiKey } : {}),
+          ...args
         }
       })
-      const result = await this.connection.send(request)
-      return await oldValue(null, result)
+      const response = await this.connection.send(request)
+      const e = response.error
+      if (e) {
+        throw new RpcProxyMethodError(
+          `RPC method call error (${e.code}: ${e.message})`
+        )
+      }
+      return await oldValue(null, response.result)
     }
   }
 }

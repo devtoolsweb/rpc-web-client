@@ -1,25 +1,25 @@
 import { EventEmitterMixin } from '@aperos/event-emitter'
 import {
-  IRpcMessage,
+  IRpcRequest,
   IRpcResponse,
   JsonRpcId,
   RpcResponse
 } from '@aperos/rpc-common'
 import { IRpcConnection, IRpcConnectionEvents } from './rpc_connection'
 
-export type SocketMessageCallback = (message?: IRpcResponse) => any
+export type SocketResponseCallback = (response?: IRpcResponse) => any
 
 export interface ISocketConnection extends IRpcConnection {}
 
 export interface ISocketConnectionProps {
-  messageTtl: number
+  messageTtl?: number
   serverUrl: string
 }
 
 class MessageSink {
-  private callback: SocketMessageCallback
+  private callback: SocketResponseCallback
 
-  constructor (callback: SocketMessageCallback) {
+  constructor (callback: SocketResponseCallback) {
     this.callback = callback
   }
 
@@ -47,16 +47,17 @@ export class SocketConnection
     this.serverUrl = p.serverUrl
   }
 
-  async send (message: IRpcMessage) {
+  async send (request: IRpcRequest) {
     await this.ensureConnectionExists()
-    const data = JSON.stringify(message)
-    const id = message.id
+    const data = JSON.stringify(request)
+    const id = request.id
+    this.emit('request', this, request)
     if (!!id) {
       return new Promise<IRpcResponse>(resolve => {
         const t = setTimeout(() => {
-          this.emit('timeout', this, message)
+          this.emit('timeout', this, request)
           resolve()
-        }, message.ttl)
+        }, request.ttl)
         this.sinkMap.set(
           id,
           new MessageSink(m => {

@@ -5,12 +5,13 @@
   ],
   "dependencies": {
     "@aperos/event-emitter": "*",
-    "@aperos/rpc-common": "*"
+    "@aperos/rpc-common": "*",
+    "lib": "^4.0.5"
   },
   "description": "TypeScript implementation of a RPC web client based on WebSockets",
   "devDependencies": {
-    "make-dts-bundle": "latest",
     "dts-bundle": "latest",
+    "make-dts-bundle": "latest",
     "parcel": "latest",
     "rollup": "latest",
     "rollup-plugin-terser": "latest",
