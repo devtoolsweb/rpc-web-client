@@ -1,4 +1,4 @@
-import { RpcRequest, RpcUtils, IRpcResponse } from '@aperos/rpc-common'
+import { RpcRequest, RpcUtils } from '@aperos/rpc-common'
 import { IRpcConnection } from './rpc_connection'
 import { RpcProxyMethodError } from './rpc_proxy_method_error'
 

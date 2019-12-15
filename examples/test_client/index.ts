@@ -14,8 +14,10 @@ window.addEventListener('load', async () => {
 
   setInterval(async () => {
     try {
-      const result = await tc.testMethod({ hello: 'hello' })
-      console.log(result)
+      const sum = await tc.calcSum({ a: Math.random(), b: Math.random() })
+      console.log('calcSum()', sum)
+      const hello = await tc.testMethod({ hello: 'hello' })
+      console.log('testMethod()', hello)
     } catch (e) {
       console.log('Error:', e)
     }
