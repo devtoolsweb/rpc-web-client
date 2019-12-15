@@ -1,32 +1,28 @@
-import {
-  IRpcMessageArgs,
-  IRpcMessageParams,
-  RpcMessage
-} from '@aperos/rpc-common'
-import { IRpcClient, IRpcMessageSendParams } from './rpc_client'
+import { RpcRequest } from '@aperos/rpc-common'
+import { IRpcConnection } from './rpc_connection'
 
 export interface IRpcProxy {
-  readonly client: IRpcClient
+  readonly connection: IRpcConnection
   readonly domain: string
 }
 
-export interface IRpcCallParams {
+export interface IRpcCallProps {
   domain?: string
   messageTtl?: number
   verb?: string
 }
 
-export interface IRpcProxyParams {
+export interface IRpcProxyProps {
+  connnection: IRpcConnection
   domain?: string
-  client: IRpcClient
 }
 
 export class RpcProxy implements IRpcProxy {
-  readonly client: IRpcClient
+  readonly connection: IRpcConnection
   readonly domain: string
 
-  constructor (p: IRpcProxyParams) {
-    this.client = p.client
+  constructor (p: IRpcProxyProps) {
+    this.connection = p.connnection
     this.domain = p.domain || ''
   }
 }
@@ -38,7 +34,7 @@ const rpcMethodQNRegexp = new RegExp(
 )
 const rpcMethodQNForm = `[domain<${rpcMethodQNSeparators.join('|')}>]verb'`
 
-export function RpcCall (p?: string | IRpcCallParams) {
+export function RpcCall (p?: string | IRpcCallProps) {
   let qn = ['', '']
   if (typeof p === 'string') {
     const m = p.match(rpcMethodQNRegexp)
@@ -60,19 +56,21 @@ export function RpcCall (p?: string | IRpcCallParams) {
       )
     }
     const oldValue = descriptor.value
-    descriptor.value = async function (this: IRpcProxy, args: IRpcMessageArgs) {
-      let ttl = this.client.messageTtl
+    descriptor.value = async function (this: IRpcProxy, args: any[]) {
+      let ttl = this.connection.messageTtl
       const domain = this.domain || defaultDomain
       const verb = defaultVerb || key
-      const params: IRpcMessageParams = {
+      const request = new RpcRequest({
         ...(ttl > 0 ? { ttl } : {}),
-        args,
-        domain,
-        verb
-      }
-      const message = new RpcMessage(params)
-      const sp: IRpcMessageSendParams = { message }
-      const result = await this.client.send(sp)
+        id: 'auto',
+        method: `${domain}.${verb}`,
+        params: {
+          args,
+          domain,
+          verb
+        }
+      })
+      const result = await this.connection.send(request)
       return await oldValue(null, result)
     }
   }

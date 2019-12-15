@@ -1,17 +1,18 @@
-import { EventEmitterMixin, IBaseEvents } from '@aperos/event-emitter'
-import { ISocketMessage } from '@aperos/rpc-common'
+import { EventEmitterMixin } from '@aperos/event-emitter'
+import {
+  IRpcMessage,
+  IRpcResponse,
+  JsonRpcId,
+  RpcResponse
+} from '@aperos/rpc-common'
+import { IRpcConnection, IRpcConnectionEvents } from './rpc_connection'
 
-export type SocketMessageCallback = (message?: ISocketMessage) => any
+export type SocketMessageCallback = (message?: IRpcResponse) => any
 
-export interface ISocketMessageSendParams {
-  message: ISocketMessage
-}
+export interface ISocketConnection extends IRpcConnection {}
 
-export interface ISocketConnection {
-  send(p: ISocketMessageSendParams): Promise<object>
-}
-
-export interface ISocketConnectionParams {
+export interface ISocketConnectionProps {
+  messageTtl: number
   serverUrl: string
 }
 
@@ -22,51 +23,57 @@ class MessageSink {
     this.callback = callback
   }
 
-  capture (message?: ISocketMessage) {
-    this.callback(message)
+  capture (r: IRpcResponse) {
+    this.callback(r)
   }
-}
-
-export interface ISocketConnectionEvents extends IBaseEvents {
-  readonly open: (conn: ISocketConnection) => void
-  readonly response: (conn: ISocketConnection, m: ISocketMessage) => void
-  readonly timeout: (conn: ISocketConnection, m: ISocketMessage) => void
 }
 
 export class BaseSocketConnection {}
 
 export class SocketConnection
-  extends EventEmitterMixin<ISocketConnectionEvents>(BaseSocketConnection)
+  extends EventEmitterMixin<IRpcConnectionEvents>(BaseSocketConnection)
   implements ISocketConnection {
+  readonly messageTtl: number
   readonly serverUrl: string
 
   private isConnected = false
   private ws?: WebSocket
 
-  private readonly sinkMap = new Map<number, MessageSink>()
+  private readonly sinkMap = new Map<JsonRpcId, MessageSink>()
 
-  constructor (p: ISocketConnectionParams) {
+  constructor (p: ISocketConnectionProps) {
     super()
+    this.messageTtl = p.messageTtl || 0
     this.serverUrl = p.serverUrl
   }
 
-  async send (p: ISocketMessageSendParams): Promise<object> {
+  async send (message: IRpcMessage) {
     await this.ensureConnectionExists()
-    return new Promise(resolve => {
-      const t = setTimeout(() => {
-        this.emit('timeout', this, p.message)
-        resolve()
-      }, p.message.ttl)
-      this.sinkMap.set(
-        p.message.id,
-        new MessageSink(response => {
-          clearTimeout(t)
-          this.emit('response', this, response!)
-          resolve(response)
-        })
-      )
-      this.ws!.send(JSON.stringify(p.message))
-    })
+    const data = JSON.stringify(message)
+    const id = message.id
+    if (!!id) {
+      return new Promise<IRpcResponse>(resolve => {
+        const t = setTimeout(() => {
+          this.emit('timeout', this, message)
+          resolve()
+        }, message.ttl)
+        this.sinkMap.set(
+          id,
+          new MessageSink(m => {
+            clearTimeout(t)
+            const response = m as IRpcResponse
+            this.emit('response', this, response)
+            resolve(response)
+          })
+        )
+        this.ws!.send(data)
+      })
+    } else {
+      this.ws!.send(data)
+      return new Promise<IRpcResponse>(resolve => {
+        resolve(new RpcResponse({ id: 0 }))
+      })
+    }
   }
 
   protected async ensureConnectionExists () {
@@ -87,7 +94,7 @@ export class SocketConnection
           reject()
         })
         ws.addEventListener('message', (event: MessageEvent) => {
-          const response: ISocketMessage = JSON.parse(event.data)
+          const response = JSON.parse(event.data) as IRpcResponse
           const sink = this.sinkMap.get(response.id)
           if (sink) {
             this.sinkMap.delete(response.id)
