@@ -84,33 +84,33 @@ export class SocketConnection
   }
 
   protected async reconnect () {
-    return new Promise((resolve, reject) => {
+    if (this.ws) {
+      this.ws.close()
+      delete this.ws
+    }
+    return new Promise(async (resolve, reject) => {
       let ws: WebSocket
-      try {
-        ws = new WebSocket(this.serverUrl)
-        ws.addEventListener('close', () => {
-          this.isConnected = false
-        })
-        ws.addEventListener('error', () => {
-          reject()
-        })
-        ws.addEventListener('message', (event: MessageEvent) => {
-          const response = JSON.parse(event.data) as IRpcResponse
-          const sink = this.sinkMap.get(response.id)
-          if (sink) {
-            this.sinkMap.delete(response.id)
-            sink.capture(response)
-          }
-        })
-        ws.addEventListener('open', () => {
-          this.isConnected = true
-          this.ws = ws
-          resolve()
-          this.emit('open', this)
-        })
-      } catch (e) {
-        reject(e.message)
-      }
+      ws = new WebSocket(this.serverUrl)
+      ws.addEventListener('close', () => {
+        this.isConnected = false
+      })
+      ws.addEventListener('error', () => {
+        reject(`WebSocket connection to '${this.serverUrl}' failed`)
+      })
+      ws.addEventListener('message', (event: MessageEvent) => {
+        const response = JSON.parse(event.data) as IRpcResponse
+        const sink = this.sinkMap.get(response.id)
+        if (sink) {
+          this.sinkMap.delete(response.id)
+          sink.capture(response)
+        }
+      })
+      ws.addEventListener('open', () => {
+        this.isConnected = true
+        this.ws = ws
+        resolve()
+        this.emit('open', this)
+      })
     })
   }
 }

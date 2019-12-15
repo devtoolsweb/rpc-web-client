@@ -13,7 +13,11 @@ window.addEventListener('load', async () => {
   const tc = new TestClass({ connection, domain: 'TestDomain' })
 
   setInterval(async () => {
-    const result = await tc.testMethod({ hello: 'hello' })
-    console.log(result)
+    try {
+      const result = await tc.testMethod({ hello: 'hello' })
+      console.log(result)
+    } catch (e) {
+      console.log('Error:', e)
+    }
   }, 2000)
 })
