@@ -5,8 +5,7 @@
   ],
   "dependencies": {
     "@aperos/event-emitter": "*",
-    "@aperos/rpc-common": "*",
-    "lib": "^4.0.5"
+    "@aperos/rpc-common": "*"
   },
   "description": "TypeScript implementation of a RPC web client based on WebSockets",
   "devDependencies": {

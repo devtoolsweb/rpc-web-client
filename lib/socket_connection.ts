@@ -11,7 +11,7 @@ export type SocketResponseCallback = (response?: IRpcResponse) => any
 
 export interface ISocketConnection extends IRpcConnection {}
 
-export interface ISocketConnectionProps {
+export interface ISocketConnectionOpts {
   messageTtl?: number
   serverUrl: string
 }
@@ -41,10 +41,10 @@ export class SocketConnection
 
   private readonly sinkMap = new Map<JsonRpcId, MessageSink>()
 
-  constructor (p: ISocketConnectionProps) {
-    super()
-    this.messageTtl = p.messageTtl || 0
-    this.serverUrl = p.serverUrl
+    constructor (p: ISocketConnectionOpts) {
+      super()
+      this.messageTtl = p.messageTtl || 0
+      this.serverUrl = p.serverUrl
   }
 
   async send (request: IRpcRequest) {

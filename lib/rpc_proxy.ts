@@ -10,13 +10,13 @@ export interface IRpcProxy {
 
 export type RpcCallArgs = Record<string | symbol, any>
 
-export interface IRpcCallProps {
+export interface IRpcCallOpts {
   domain?: string
   messageTtl?: number
   verb?: string
 }
 
-export interface IRpcProxyProps {
+export interface IRpcProxyOpts {
   apiKey?: string
   connection: IRpcConnection
   domain?: string
@@ -27,14 +27,14 @@ export class RpcProxy implements IRpcProxy {
   readonly connection: IRpcConnection
   readonly domain: string
 
-  constructor (p: IRpcProxyProps) {
+  constructor (p: IRpcProxyOpts) {
     this.connection = p.connection
     this.domain = p.domain || ''
     p.apiKey && (this.apiKey = p.apiKey)
   }
 }
 
-export function RpcCall (p?: string | IRpcCallProps) {
+export function RpcCall (p?: string | IRpcCallOpts) {
   let [domain, verb, ttl] = ['', '', 0]
   if (typeof p === 'string') {
     ;[domain, verb] = RpcUtils.parseMethod(p)
