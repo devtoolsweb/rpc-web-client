@@ -58,7 +58,7 @@ export class RpcHttpConnection extends RpcConnection {
       method: 'POST',
       mode: this.allowCors ? 'cors' : 'no-cors',
       cache: 'no-cache',
-      // credentials: 'include',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       referrer: 'no-referrer',
       body
