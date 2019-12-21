@@ -1,4 +1,4 @@
-import {} from '@aperos/rpc-common'
+import { IRpcError } from '@aperos/rpc-common'
 import { RpcCall, RpcProxy, RpcProxyMethodError } from '../../lib'
 
 interface ITestMethodParams {
@@ -12,11 +12,18 @@ interface ICalcSumParams {
 
 export class TestClass extends RpcProxy {
   @RpcCall()
-  async calcSum (_params?: ICalcSumParams, result?: number): Promise<number> {
+  async calcSum (
+    _params?: ICalcSumParams,
+    result?: number,
+    error?: IRpcError
+  ): Promise<number> {
     if (result) {
       return result
+    } else if (error) {
+      throw new Error(error.message)
+    } else {
+      throw new RpcProxyMethodError()
     }
-    throw new RpcProxyMethodError()
   }
 
   @RpcCall()

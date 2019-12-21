@@ -20,16 +20,19 @@ export interface IRpcProxyOpts {
   apiKey?: string
   connection: IRpcConnection
   domain?: string
+  throwError?: boolean
 }
 
 export class RpcProxy implements IRpcProxy {
   readonly apiKey?: string
   readonly connection: IRpcConnection
   readonly domain: string
+  readonly throwError?: boolean
 
   constructor (p: IRpcProxyOpts) {
     this.connection = p.connection
     this.domain = p.domain || ''
+    this.throwError = !!p.throwError
     p.apiKey && (this.apiKey = p.apiKey)
   }
 }
@@ -55,7 +58,7 @@ export function RpcCall (p?: string | IRpcCallOpts) {
       const request = new RpcRequest({
         ...(ttl > 0 ? { ttl } : {}),
         id: 'auto',
-        method: `${this.domain || domain}.${verb || key}`,
+        method: `${domain || this.domain}.${verb || key}`,
         params: {
           ...(apiKey ? { apiKey } : {}),
           ...args
@@ -64,11 +67,16 @@ export function RpcCall (p?: string | IRpcCallOpts) {
       const response = await this.connection.send(request)
       const e = response.error
       if (e) {
-        throw new RpcProxyMethodError(
-          `RPC method call error (${e.code}: ${e.message})`
-        )
+        if (target.throwError) {
+          throw new RpcProxyMethodError(
+            `RPC method call error (${e.code}: ${e.message})`
+          )
+        } else {
+          return await oldValue(null, null, e)
+        }
+      } else {
+        return await oldValue(null, response.result)
       }
-      return await oldValue(null, response.result)
     }
   }
 }
