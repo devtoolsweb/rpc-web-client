@@ -72,10 +72,10 @@ export function RpcCall (p?: string | IRpcCallOpts) {
             `RPC method call error (${e.code}: ${e.message})`
           )
         } else {
-          return await oldValue(null, null, e)
+          return oldValue.call(target, null, null, e)
         }
       } else {
-        return await oldValue(null, response.result)
+        return await oldValue.call(target, null, response.result)
       }
     }
   }
