@@ -27,7 +27,7 @@
     "build-production": "BUILD=production npm run build",
     "clean": "rm -rf .cache build dist",
     "prepare": "npm run clean && npm run build-production",
-    "test-client": "parcel serve examples/test_client/index.html"
+    "test-client": "parcel --host 0.0.0.0 serve examples/test_client/index.html"
   },
   "types": "dist/index.d.ts",
   "version": "0.0.9"

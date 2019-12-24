@@ -1,23 +1,35 @@
 import { TestClass } from './test_class'
-// import { RpcWsConnection } from '../../lib'
-import { RpcHttpConnection } from '../../lib'
+import { RpcHttpConnection, RpcWsConnection } from '../../lib'
+
+const useWebSockets = true
+const host = 'bb'
+
+const logMessage = (message: string) => {
+  const el = document.createElement('div')
+  el.textContent = message
+  document.getElementById('messages')!.appendChild(el)
+}
 
 window.addEventListener('load', async () => {
-  // const connection = new RpcWsConnection({
-  //   serverUrl: 'ws://localhost:3001'
-  // })
-  const connection = new RpcHttpConnection({
-    allowCors: true,
-    serverUrl: 'http://localhost:3002'
-  })
+  if (useWebSockets) {
+    logMessage('Using web sockets')
+  }
+  const connection = useWebSockets
+    ? new RpcWsConnection({
+        serverUrl: `ws://${host}:3001`
+      })
+    : new RpcHttpConnection({
+        allowCors: true,
+        serverUrl: `http://${host}:3002`
+      })
   connection.on('error', event => {
-    console.log('Connection error:', event.comment)
+    logMessage(`Connection error: ${event.comment}`)
   })
   connection.on('request', event => {
-    console.log('Client sent a request:', event.request)
+    logMessage(`Client sent a request: ${JSON.stringify(event.request)}`)
   })
 
-  console.log(connection)
+  // console.log(connection)
   const tc = new TestClass({ connection, domain: 'TestDomain' })
   testMethods(tc)
   setInterval(async () => {}, 2000)
@@ -26,10 +38,10 @@ window.addEventListener('load', async () => {
 const testMethods = async (tc: TestClass) => {
   try {
     const sum = await tc.calcSum({ a: Math.random(), b: Math.random() })
-    console.log('calcSum()', sum)
+    logMessage(`calcSum(): ${sum}`)
     const hello = await tc.testMethod({ hello: 'hello' })
-    console.log('testMethod()', hello)
+    logMessage(`testMethod(): ${hello}`)
   } catch (e) {
-    console.log('Error:', e)
+    logMessage(`Error: ${e}`)
   }
 }
