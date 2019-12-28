@@ -33,7 +33,7 @@ export class RpcWsConnection extends RpcConnection {
     const data = JSON.stringify(request)
     const id = request.id
     this.emit('request', { connection, request })
-    if (!!id) {
+    if (id !== undefined) {
       return new Promise<IRpcResponse>(resolve => {
         const t = setTimeout(() => {
           this.emit('timeout', { connection, request })

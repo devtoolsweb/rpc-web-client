@@ -41,9 +41,9 @@ export class RpcProxy implements IRpcProxy {
 export function RpcCall(p?: string | IRpcCallOpts) {
   let [domain, verb, ttl] = ['', '', 0]
   if (typeof p === 'string') {
-    ;[domain, verb] = RpcUtils.parseMethod(p)
+    [domain, verb] = RpcUtils.parseMethod(p)
   } else if (p) {
-    ;[domain, verb, ttl] = [p.domain || '', p.verb || '', p.messageTtl || 0]
+    [domain, verb, ttl] = [p.domain || '', p.verb || '', p.messageTtl || 0]
   }
 
   return (target: Object, key: string, descriptor: PropertyDescriptor) => {
@@ -76,7 +76,7 @@ export function RpcCall(p?: string | IRpcCallOpts) {
           return oldValue.call(this, null, null, e)
         }
       } else {
-        return await oldValue.call(this, null, response.result)
+        return oldValue.call(this, null, response.result)
       }
     }
   }

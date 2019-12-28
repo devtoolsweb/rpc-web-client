@@ -13,7 +13,7 @@ export class RpcHttpConnection extends RpcConnection {
     const connection = this
     const id = request.id
     this.emit('request', { connection, request })
-    if (!!id) {
+    if (id !== undefined) {
       return new Promise<IRpcResponse>(async resolve => {
         const t = setTimeout(() => {
           this.emit('timeout', { connection, request })
@@ -27,7 +27,7 @@ export class RpcHttpConnection extends RpcConnection {
             })
           )
         }, request.ttl)
-        this.sendHttpRequest(body).then(async resp => {
+        await this.sendHttpRequest(body).then(async resp => {
           clearTimeout(t)
           if (resp.ok) {
             const json = await resp.json()
@@ -46,7 +46,7 @@ export class RpcHttpConnection extends RpcConnection {
         })
       })
     } else {
-      this.sendHttpRequest(body)
+      await this.sendHttpRequest(body)
       return new Promise<IRpcResponse>(resolve => {
         resolve(new RpcResponse({ id: 0 }))
       })

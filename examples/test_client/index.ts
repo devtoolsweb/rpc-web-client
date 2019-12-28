@@ -1,7 +1,7 @@
 import { TestClass } from './test_class'
 import { RpcHttpConnection, RpcWsConnection } from '../../lib'
 
-const useWebSockets = true
+;const useWebSockets = true
 const host = 'bb'
 
 const logMessage = (message: string) => {
@@ -16,12 +16,12 @@ window.addEventListener('load', async () => {
   }
   const connection = useWebSockets
     ? new RpcWsConnection({
-        serverUrl: `ws://${host}:3001`
-      })
+      serverUrl: `ws://${host}:3001`
+    })
     : new RpcHttpConnection({
-        allowCors: true,
-        serverUrl: `http://${host}:3002`
-      })
+      allowCors: true,
+      serverUrl: `http://${host}:3002`
+    })
   connection.on('error', event => {
     logMessage(`Connection error: ${event.comment}`)
   })
@@ -30,8 +30,12 @@ window.addEventListener('load', async () => {
   })
 
   // console.log(connection)
-  const tc = new TestClass({ connection, domain: 'TestDomain', throwError: true })
-  testMethods(tc)
+  const tc = new TestClass({
+    connection,
+    domain: 'TestDomain',
+    throwError: true
+  })
+  await testMethods(tc)
   setInterval(async () => {}, 2000)
 })
 
