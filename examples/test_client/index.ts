@@ -41,8 +41,14 @@ const testMethods = async (tc: TestClass) => {
     logMessage(`calcSum(): ${sum}`)
     const hello = await tc.testMethod({ hello: 'hello' })
     logMessage(`testMethod(): ${hello}`)
-    const n = await tc.getErrorResult({})
+    const n = await tc.getErrorResult()
     logMessage(`getErrorResult(): ${n}`)
+  } catch (e) {
+    logMessage(`Error: ${e.message}`)
+  }
+
+  try {
+    await tc.methodWithException()
   } catch (e) {
     logMessage(`Error: ${e.message}`)
   }

@@ -41,4 +41,9 @@ export class TestClass extends RpcProxy {
     }
     throw new RpcProxyMethodError()
   }
+
+  @RpcCall()
+  async methodWithException(): Promise<number | IRpcError> {
+    return -1
+  }
 }
