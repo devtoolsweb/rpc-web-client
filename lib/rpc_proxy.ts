@@ -6,6 +6,7 @@ export interface IRpcProxy {
   readonly apiKey?: string
   readonly connection: IRpcConnection
   readonly domain: string
+  readonly throwError: boolean
 }
 
 export type RpcCallArgs = Record<string | symbol, any>
@@ -27,17 +28,17 @@ export class RpcProxy implements IRpcProxy {
   readonly apiKey?: string
   readonly connection: IRpcConnection
   readonly domain: string
-  readonly throwError?: boolean
+  readonly throwError: boolean
 
-  constructor (p: IRpcProxyOpts) {
+  constructor(p: IRpcProxyOpts) {
     this.connection = p.connection
     this.domain = p.domain || ''
-    this.throwError = !!p.throwError
+    this.throwError = p.throwError === true
     p.apiKey && (this.apiKey = p.apiKey)
   }
 }
 
-export function RpcCall (p?: string | IRpcCallOpts) {
+export function RpcCall(p?: string | IRpcCallOpts) {
   let [domain, verb, ttl] = ['', '', 0]
   if (typeof p === 'string') {
     ;[domain, verb] = RpcUtils.parseMethod(p)
@@ -52,7 +53,7 @@ export function RpcCall (p?: string | IRpcCallOpts) {
       )
     }
     const oldValue = descriptor.value
-    descriptor.value = async function (this: IRpcProxy, args: RpcCallArgs) {
+    descriptor.value = async function(this: IRpcProxy, args: RpcCallArgs) {
       const apiKey = this.apiKey
       ttl = ttl || this.connection.messageTtl
       const request = new RpcRequest({
@@ -67,7 +68,7 @@ export function RpcCall (p?: string | IRpcCallOpts) {
       const response = await this.connection.send(request)
       const e = response.error
       if (e) {
-        if (target.throwError) {
+        if (this.throwError) {
           throw new RpcProxyMethodError(
             `RPC method call error (${e.code}: ${e.message})`
           )

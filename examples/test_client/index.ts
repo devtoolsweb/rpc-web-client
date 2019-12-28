@@ -30,7 +30,7 @@ window.addEventListener('load', async () => {
   })
 
   // console.log(connection)
-  const tc = new TestClass({ connection, domain: 'TestDomain' })
+  const tc = new TestClass({ connection, domain: 'TestDomain', throwError: true })
   testMethods(tc)
   setInterval(async () => {}, 2000)
 })
@@ -41,7 +41,9 @@ const testMethods = async (tc: TestClass) => {
     logMessage(`calcSum(): ${sum}`)
     const hello = await tc.testMethod({ hello: 'hello' })
     logMessage(`testMethod(): ${hello}`)
+    const n = await tc.getErrorResult({})
+    logMessage(`getErrorResult(): ${n}`)
   } catch (e) {
-    logMessage(`Error: ${e}`)
+    logMessage(`Error: ${e.message}`)
   }
 }

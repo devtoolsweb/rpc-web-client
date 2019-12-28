@@ -12,27 +12,32 @@ interface ICalcSumParams {
 
 export class TestClass extends RpcProxy {
   @RpcCall()
-  async calcSum (
-    _params?: ICalcSumParams,
-    result?: number,
-    error?: IRpcError
-  ): Promise<number> {
+  async calcSum(_params?: ICalcSumParams, result?: number): Promise<number> {
     if (result) {
       return result
-    } else if (error) {
-      throw new Error(error.message)
     } else {
       throw new RpcProxyMethodError()
     }
   }
 
   @RpcCall()
-  async testMethod (
+  async testMethod(
     _params?: ITestMethodParams,
     result?: string
   ): Promise<string> {
     if (result) {
       return `Decorated value: {${result}}`
+    }
+    throw new RpcProxyMethodError()
+  }
+
+  @RpcCall()
+  async getErrorResult(
+    _params?: ITestMethodParams,
+    result?: number
+  ): Promise<number> {
+    if (result) {
+      return result
     }
     throw new RpcProxyMethodError()
   }
