@@ -1,7 +1,6 @@
 import { TestClass } from './test_class'
-import { RpcHttpConnection, RpcWsConnection } from '../../lib'
-
-;const useWebSockets = true
+import { RpcHttpConnection, RpcWsConnection, IRpcConnection } from '../../lib'
+const useWebSockets = true
 const host = 'bb'
 
 const logMessage = (message: string) => {
@@ -14,14 +13,14 @@ window.addEventListener('load', async () => {
   if (useWebSockets) {
     logMessage('Using web sockets')
   }
-  const connection = useWebSockets
+  const connection: IRpcConnection = useWebSockets
     ? new RpcWsConnection({
-      serverUrl: `ws://${host}:3001`
-    })
+        serverUrl: `ws://${host}:3001`
+      })
     : new RpcHttpConnection({
-      allowCors: true,
-      serverUrl: `http://${host}:3002`
-    })
+        allowCors: true,
+        serverUrl: `http://${host}:3002`
+      })
   connection.on('error', event => {
     logMessage(`Connection error: ${event.comment}`)
   })
