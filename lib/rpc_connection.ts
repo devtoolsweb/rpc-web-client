@@ -2,7 +2,8 @@ import { IRpcResponse, IRpcRequest } from '@aperos/rpc-common'
 import {
   EventEmitterMixin,
   IBaseEvents,
-  ITypedEventEmitter
+  ITypedEventEmitter,
+  EventEmitterConstructor
 } from '@aperos/event-emitter'
 
 export interface IRpcConnectionEvent {
@@ -20,8 +21,7 @@ export interface IRpcConnectionEvents extends IBaseEvents {
   readonly timeout: (event: IRpcConnectionEvent) => void
 }
 
-export interface IRpcConnection
-  extends ITypedEventEmitter<IRpcConnectionEvents> {
+export interface IRpcConnection extends ITypedEventEmitter<IRpcConnectionEvents> {
   readonly messageTtl: number
   readonly serverUrl: string
   send(request: IRpcRequest): Promise<IRpcResponse>
@@ -36,20 +36,22 @@ export interface IRpcConnectionOpts {
 export class BaseRpcConnection {}
 
 export class RpcConnection
-  extends EventEmitterMixin<IRpcConnectionEvents>(BaseRpcConnection)
+  extends EventEmitterMixin<IRpcConnectionEvents, EventEmitterConstructor<BaseRpcConnection>>(
+    BaseRpcConnection
+  )
   implements IRpcConnection {
   readonly allowCors: boolean
   readonly messageTtl: number
   readonly serverUrl: string
 
-  constructor (p: IRpcConnectionOpts) {
+  constructor(p: IRpcConnectionOpts) {
     super()
     this.allowCors = p.allowCors || false
     this.messageTtl = p.messageTtl || 0
     this.serverUrl = p.serverUrl
   }
 
-  send (_: IRpcRequest): Promise<IRpcResponse> {
+  send(_: IRpcRequest): Promise<IRpcResponse> {
     throw new Error('Not implemented')
   }
 }

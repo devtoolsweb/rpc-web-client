@@ -8,7 +8,7 @@ import {
 import { RpcConnection } from './rpc_connection'
 
 export class RpcHttpConnection extends RpcConnection {
-  async send (request: IRpcRequest) {
+  async send(request: IRpcRequest) {
     const body = JSON.stringify(request)
     const connection = this
     const id = request.id
@@ -31,9 +31,7 @@ export class RpcHttpConnection extends RpcConnection {
           clearTimeout(t)
           if (resp.ok) {
             const json = await resp.json()
-            const response = new RpcResponse(
-              RpcResponse.makePropsFromJson(json)
-            )
+            const response = new RpcResponse(RpcResponse.makePropsFromJson(json))
             this.emit('response', { connection, response })
             resolve(response)
           } else {
@@ -53,7 +51,7 @@ export class RpcHttpConnection extends RpcConnection {
     }
   }
 
-  protected async sendHttpRequest (body: string) {
+  protected async sendHttpRequest(body: string) {
     return fetch(this.serverUrl, {
       method: 'POST',
       mode: this.allowCors ? 'cors' : 'no-cors',
