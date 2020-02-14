@@ -1,4 +1,4 @@
-import { IRpcResponse, IRpcRequest } from '@aperos/rpc-common'
+import { IRpcResponse, IRpcRequest, RpcRequest } from '@aperos/rpc-common'
 import {
   EventEmitterMixin,
   IBaseEvents,
@@ -24,6 +24,7 @@ export interface IRpcConnectionEvents extends IBaseEvents {
 export interface IRpcConnection extends ITypedEventEmitter<IRpcConnectionEvents> {
   readonly messageTtl: number
   readonly serverUrl: string
+  ping(): Promise<IRpcResponse>
   send(request: IRpcRequest): Promise<IRpcResponse>
 }
 
@@ -51,7 +52,11 @@ export class RpcConnection
     this.serverUrl = p.serverUrl
   }
 
-  send(_: IRpcRequest): Promise<IRpcResponse> {
+  async ping() {
+    return await this.send(new RpcRequest({ id: 'auto', method: 'ping' }))
+  }
+
+  async send(_: IRpcRequest): Promise<IRpcResponse> {
     throw new Error('Not implemented')
   }
 }
