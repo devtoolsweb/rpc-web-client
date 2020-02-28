@@ -47,7 +47,7 @@ export class RpcConnection
 
   constructor(p: IRpcConnectionOpts) {
     super()
-    this.allowCors = p.allowCors || false
+    this.allowCors = p.allowCors || true
     this.messageTtl = p.messageTtl || 0
     this.serverUrl = p.serverUrl
   }
