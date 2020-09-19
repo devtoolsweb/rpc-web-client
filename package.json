@@ -10,7 +10,7 @@
   "description": "TypeScript implementation of a RPC web client based on WebSockets",
   "devDependencies": {
     "parcel": "latest",
-    "rollup": "<=2.8.2",
+    "rollup": "latest",
     "rollup-plugin-dts": "latest",
     "rollup-plugin-terser": "latest",
     "rollup-plugin-typescript2": "latest",
