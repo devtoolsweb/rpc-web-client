@@ -1,6 +1,6 @@
-# Aperos RPC Web Client
+# @aperos/rpc-web-client
 
-TypeScript implementation of a RPC web client based on WebSockets.
+RPC Web Client implementation with WebSockets support.
 
 The development branch can contain experimental code that is under
 active development and should not be used for production environments.
