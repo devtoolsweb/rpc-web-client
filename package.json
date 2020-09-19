@@ -7,7 +7,7 @@
     "@aperos/event-emitter": "*",
     "@aperos/rpc-common": "*"
   },
-  "description": "RPC Web Client implementation with WebSockets support",
+  "description": "RPC web client implementation with WebSockets support",
   "devDependencies": {
     "parcel": "latest",
     "rollup": "latest",
