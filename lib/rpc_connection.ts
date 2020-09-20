@@ -28,7 +28,7 @@ export interface IRpcConnection extends ITypedEventEmitter<IRpcConnectionEvents>
   send(request: IRpcRequest): Promise<IRpcResponse>
 }
 
-export interface IRpcConnectionOpts {
+export interface IRpcConnectionArgs {
   allowCors?: boolean
   messageTtl?: number
   serverUrl: string
@@ -45,12 +45,12 @@ export class RpcConnection
   readonly messageTtl: number
   readonly serverUrl: string
 
-  constructor(p: IRpcConnectionOpts) {
-    super()
-    this.allowCors = p.allowCors || true
-    this.messageTtl = p.messageTtl || 0
-    this.serverUrl = p.serverUrl
-  }
+    constructor(args: IRpcConnectionArgs) {
+      super()
+      this.allowCors = args.allowCors || true
+      this.messageTtl = args.messageTtl || 0
+      this.serverUrl = args.serverUrl
+    }
 
   async ping() {
     return await this.send(new RpcRequest({ id: 'auto', method: 'ping' }))

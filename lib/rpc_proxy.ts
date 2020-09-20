@@ -11,13 +11,13 @@ export interface IRpcProxy {
 
 export type RpcCallArgs = Record<string | symbol, any>
 
-export interface IRpcCallOpts {
+export interface IRpcCallArgs {
   domain?: string
   messageTtl?: number
   verb?: string
 }
 
-export interface IRpcProxyOpts {
+export interface IRpcProxyArgs {
   apiKey?: string
   connection: IRpcConnection
   domain?: string
@@ -30,7 +30,7 @@ export class RpcProxy implements IRpcProxy {
   readonly domain: string
   readonly throwError: boolean
 
-  constructor(p: IRpcProxyOpts) {
+  constructor(p: IRpcProxyArgs) {
     this.connection = p.connection
     this.domain = p.domain || ''
     this.throwError = p.throwError === true
@@ -38,13 +38,18 @@ export class RpcProxy implements IRpcProxy {
   }
 }
 
-export function RpcCall(p?: string | IRpcCallOpts) {
-  let [domain, verb, ttl] = ['', '', 0]
-  if (typeof p === 'string') {
-    [domain, verb] = RpcUtils.parseMethod(p)
-  } else if (p) {
-    [domain, verb, ttl] = [p.domain || '', p.verb || '', p.messageTtl || 0]
+export function RpcCall(args?: string | IRpcCallArgs) {
+  let p: IRpcCallArgs = { domain: '', verb: '', messageTtl: 0 }
+  if (args) {
+    if (typeof args === 'string') {
+      const m = RpcUtils.parseMethod(args)
+      p.domain = m[0]
+      p.verb = m[1]
+    } else {
+      p = args
+    }
   }
+  let ttl = p.messageTtl
 
   return (target: Object, key: string, descriptor: PropertyDescriptor) => {
     if (!(target instanceof RpcProxy)) {
@@ -53,13 +58,13 @@ export function RpcCall(p?: string | IRpcCallOpts) {
       )
     }
     const oldValue = descriptor.value
-    descriptor.value = async function(this: IRpcProxy, args: RpcCallArgs) {
+    descriptor.value = async function (this: IRpcProxy, args: RpcCallArgs) {
       const apiKey = this.apiKey
       ttl = ttl || this.connection.messageTtl
       const request = new RpcRequest({
         ...(ttl > 0 ? { ttl } : {}),
         id: 'auto',
-        method: `${domain || this.domain}.${verb || key}`,
+        method: `${p.domain || this.domain}.${p.verb || key}`,
         params: {
           ...(apiKey ? { apiKey } : {}),
           ...args
