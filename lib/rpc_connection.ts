@@ -1,9 +1,9 @@
+import { Constructor } from '@aperos/ts-goodies'
 import { IRpcResponse, IRpcRequest, RpcRequest } from '@aperos/rpc-common'
 import {
   EventEmitterMixin,
   IBaseEvents,
-  ITypedEventEmitter,
-  EventEmitterConstructor
+  ITypedEventEmitter
 } from '@aperos/event-emitter'
 
 export interface IRpcConnectionEvent {
@@ -21,7 +21,8 @@ export interface IRpcConnectionEvents extends IBaseEvents {
   readonly timeout: (event: IRpcConnectionEvent) => void
 }
 
-export interface IRpcConnection extends ITypedEventEmitter<IRpcConnectionEvents> {
+export interface IRpcConnection
+  extends ITypedEventEmitter<IRpcConnectionEvents> {
   readonly messageTtl: number
   readonly serverUrl: string
   ping(): Promise<IRpcResponse>
@@ -37,20 +38,21 @@ export interface IRpcConnectionArgs {
 export class BaseRpcConnection {}
 
 export class RpcConnection
-  extends EventEmitterMixin<IRpcConnectionEvents, EventEmitterConstructor<BaseRpcConnection>>(
-    BaseRpcConnection
-  )
+  extends EventEmitterMixin<
+    IRpcConnectionEvents,
+    Constructor<BaseRpcConnection>
+  >(BaseRpcConnection)
   implements IRpcConnection {
   readonly allowCors: boolean
   readonly messageTtl: number
   readonly serverUrl: string
 
-    constructor(args: IRpcConnectionArgs) {
-      super()
-      this.allowCors = args.allowCors || true
-      this.messageTtl = args.messageTtl || 0
-      this.serverUrl = args.serverUrl
-    }
+  constructor(args: IRpcConnectionArgs) {
+    super()
+    this.allowCors = args.allowCors || true
+    this.messageTtl = args.messageTtl || 0
+    this.serverUrl = args.serverUrl
+  }
 
   async ping() {
     return await this.send(new RpcRequest({ id: 'auto', method: 'ping' }))
