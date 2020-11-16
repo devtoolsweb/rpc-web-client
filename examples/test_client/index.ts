@@ -1,6 +1,6 @@
 import { TestClass } from './test_class'
 import { RpcHttpConnection, RpcWsConnection, IRpcConnection } from '../../lib'
-const useWebSockets = true
+const useWebSockets = false
 const host = 'bb'
 
 const logMessage = (message: string) => {
