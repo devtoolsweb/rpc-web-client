@@ -81,7 +81,7 @@ export function RpcCall(args?: string | IRpcCallArgs) {
           return oldValue.call(this, args, null, e)
         }
       } else {
-        return oldValue.call(this, args, response.result)
+        return oldValue.call(this, args, response.body)
       }
     }
   }

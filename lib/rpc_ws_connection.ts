@@ -77,7 +77,7 @@ export class RpcWsConnection extends RpcConnection {
       this.ws.close()
       delete this.ws
     }
-    return new Promise(async (resolve, reject) => {
+    return new Promise<void>(async (resolve, reject) => {
       let ws: WebSocket
       ws = new WebSocket(this.serverUrl)
       ws.addEventListener('close', () => {
