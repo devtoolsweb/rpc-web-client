@@ -52,7 +52,7 @@ export class RpcHttpConnection extends RpcConnection {
   }
 
   protected async sendHttpRequest(body: string) {
-    return fetch(this.serverUrl, {
+    return await fetch(this.serverUrl, {
       method: 'POST',
       mode: this.allowCors ? 'cors' : 'no-cors',
       cache: 'no-cache',
