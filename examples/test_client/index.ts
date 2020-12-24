@@ -1,6 +1,6 @@
 import { TestClass } from './test_class'
 import { RpcHttpConnection, RpcWsConnection, IRpcConnection } from '../../lib'
-const useWebSockets = false
+const useWebSockets = true
 const host = 'bb'
 
 const logMessage = (message: string) => {
@@ -21,21 +21,31 @@ window.addEventListener('load', async () => {
         allowCors: true,
         serverUrl: `http://${host}:3002`
       })
-  connection.on('error', event => {
-    logMessage(`Connection error: ${event.comment}`)
-  })
-  connection.on('request', event => {
-    logMessage(`Client sent a request: ${JSON.stringify(event.request)}`)
-  })
+  connection
+    .on('error', event => {
+      logMessage(`Connection error: ${event.comment}`)
+    })
+    .on('request', event => {
+      logMessage(`Client sent a request: ${JSON.stringify(event.request)}`)
+    })
 
-  // console.log(connection)
-  const tc = new TestClass({
-    connection,
-    domain: 'TestDomain',
-    throwError: true
-  })
-  await testMethods(tc)
-  setInterval(async () => {}, 2000)
+  let isConnected = false
+  try {
+    await connection.ping()
+    isConnected = true
+  } catch (e) {
+    logMessage(e)
+  }
+
+  if (isConnected) {
+    const tc = new TestClass({
+      connection,
+      domain: 'TestDomain',
+      throwError: true
+    })
+    await testMethods(tc)
+    setInterval(async () => {}, 2000)
+  }
 })
 
 const testMethods = async (tc: TestClass) => {
