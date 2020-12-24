@@ -30,5 +30,5 @@
     "test-client": "parcel --host 0.0.0.0 serve examples/test_client/index.html"
   },
   "types": "dist/index.d.ts",
-  "version": "0.0.23"
+  "version": "0.0.24"
 }
