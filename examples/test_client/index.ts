@@ -15,7 +15,7 @@ window.addEventListener('load', async () => {
   }
   const connection: IRpcConnection = useWebSockets
     ? new RpcWsConnection({
-        serverUrl: `ws://${host}:3001`
+        serverUrl: `ws://${host}:3002`
       })
     : new RpcHttpConnection({
         allowCors: true,
@@ -31,7 +31,11 @@ window.addEventListener('load', async () => {
 
   let isConnected = false
   try {
-    await connection.ping()
+    const res = await connection.ping()
+    if (res.error) {
+      throw `Ping failed: ${res.error}`
+    }
+    console.log(res.body)
     isConnected = true
   } catch (e) {
     logMessage(e)
