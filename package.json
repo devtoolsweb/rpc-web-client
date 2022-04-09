@@ -9,6 +9,7 @@
   },
   "description": "RPC web client implementation with WebSockets support",
   "devDependencies": {
+    "@parcel/transformer-typescript-tsc": "^2.4.1",
     "parcel": "latest",
     "rollup": "latest",
     "rollup-plugin-dts": "latest",
