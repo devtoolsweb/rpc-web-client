@@ -1,6 +1,11 @@
 ## Getting started
 
+### Prepare
+
+Clone the "devtoolsweb-monorepo" repository and follow the instructions in CONTRIBUTING.md.
+
 ### Clone the repository
+
 ```
 git clone  https://github.com/devtoolsweb/rpc-web-client.git <project_name>
 ```
@@ -24,6 +29,6 @@ npm build
 yarn run test-client
 ```
 
-# Todo
+## Todo
 
 Better tests
