@@ -11,18 +11,12 @@ Warning: This package may contain experimental code that is under development an
 ## Installation
 
 ```
-yarn install @devtoolsweb/ts-goodies
+yarn install @devtoolsweb/rpc-web-client
 ```
 
 ## Usage
 
 See own description for each class.
-
-## Executing example server
-
-```
-yarn run test-server
-```
 
 ## License
 
