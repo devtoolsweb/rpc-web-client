@@ -1,0 +1,9 @@
+body {
+  background: snow;
+  font: normal 14pt Verdana;
+}
+
+#messages * {
+  color: blue;
+  margin-bottom: 5mm;
+}

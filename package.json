@@ -1,0 +1,35 @@
+{
+  "author": "<devtoolsweb.dev@gmail.com>",
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
+  "dependencies": {
+    "@devtoolsweb/event-emitter": "*",
+    "@devtoolsweb/rpc-common": "*"
+  },
+  "description": "RPC web client implementation with WebSockets support",
+  "devDependencies": {
+    "@parcel/transformer-typescript-tsc": "^2.4.1",
+    "parcel": "latest",
+    "rollup": "latest",
+    "rollup-plugin-dts": "latest",
+    "rollup-plugin-terser": "latest",
+    "rollup-plugin-typescript2": "latest",
+    "ts-node": "latest",
+    "tslint": "latest",
+    "typescript": "latest"
+  },
+  "license": "MIT",
+  "name": "@devtoolsweb/rpc-web-client",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "scripts": {
+    "build": "rollup -c",
+    "build-production": "BUILD=production npm run build",
+    "clean": "rm -rf .cache build dist",
+    "prepare": "npm run clean && npm run build-production",
+    "test-client": "parcel --host 0.0.0.0 examples/test_client/index.html"
+  },
+  "types": "dist/index.d.ts",
+  "version": "0.1.1"
+}
