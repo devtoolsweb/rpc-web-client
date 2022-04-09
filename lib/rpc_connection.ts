@@ -1,10 +1,10 @@
-import { Constructor } from '@aperos/ts-goodies'
-import { IRpcResponse, IRpcRequest, RpcRequest } from '@aperos/rpc-common'
+import { Constructor } from '@devtoolsweb/ts-goodies'
+import { IRpcResponse, IRpcRequest, RpcRequest } from '@devtoolsweb/rpc-common'
 import {
   EventEmitterMixin,
   IBaseEvents,
   ITypedEventEmitter
-} from '@aperos/event-emitter'
+} from '@devtoolsweb/event-emitter'
 
 export interface IRpcConnectionEvent {
   comment?: string

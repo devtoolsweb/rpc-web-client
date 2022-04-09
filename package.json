@@ -1,11 +1,11 @@
 {
-  "author": "<aperos.dev@gmail.com>",
+  "author": "<devtoolsweb.dev@gmail.com>",
   "browserslist": [
     "last 2 Chrome versions"
   ],
   "dependencies": {
-    "@aperos/event-emitter": "*",
-    "@aperos/rpc-common": "*"
+    "@devtoolsweb/event-emitter": "*",
+    "@devtoolsweb/rpc-common": "*"
   },
   "description": "RPC web client implementation with WebSockets support",
   "devDependencies": {
@@ -19,7 +19,7 @@
     "typescript": "latest"
   },
   "license": "MIT",
-  "name": "@aperos/rpc-web-client",
+  "name": "@devtoolsweb/rpc-web-client",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "scripts": {
@@ -27,8 +27,8 @@
     "build-production": "BUILD=production npm run build",
     "clean": "rm -rf .cache build dist",
     "prepare": "npm run clean && npm run build-production",
-    "test-client": "parcel --host 0.0.0.0 serve examples/test_client/index.html"
+    "test-client": "parcel --host 0.0.0.0 examples/test_client/index.html"
   },
   "types": "dist/index.d.ts",
-  "version": "0.0.25"
+  "version": "0.1.0"
 }

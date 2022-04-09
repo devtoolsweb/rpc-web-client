@@ -5,7 +5,7 @@ import {
   RpcResponse,
   RpcError,
   RpcErrorCodeEnum
-} from '@aperos/rpc-common'
+} from '@devtoolsweb/rpc-common'
 import { RpcConnection } from './rpc_connection'
 
 export type SocketResponseCallback = (response?: IRpcResponse) => any

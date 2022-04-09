@@ -1,4 +1,4 @@
-import { IRpcError } from '@aperos/rpc-common'
+import { IRpcError } from '@devtoolsweb/rpc-common'
 import { RpcCall, RpcProxy, RpcProxyMethodError } from '../../lib'
 
 interface ITestMethodParams {
